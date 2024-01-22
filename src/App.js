@@ -13,7 +13,7 @@ function App() {
   const defaultHistory = number.map(i => defaultOneChat);
   const [chatHistory, setChatHistory] = useState(defaultHistory);
   const [isLoading, setIsLoading] = useState(false)
-  const [fileName, setFileName] = useState("");
+  const [fileName, setFileName] = useState([]);
   const [length, setLength] = useState(0);
   const [message, setMessage] = useState('');
   const [isUserInput, setIsUserInput] = useState(false);
@@ -37,7 +37,7 @@ function App() {
     newChatHistory[length] = [response.data.message, 'bot']
     setChatHistory(newChatHistory)
     setLength(length + 1)
-    
+
     setIsUserInput(false)
     setIsLoading(false)
 
@@ -61,8 +61,13 @@ function App() {
 
   const uploadFile = (e) => {
     const formData = new FormData();
-    formData.append('file', e.target.files[0]);
-    setFileName(e.target.files[0].name);
+    for(let i = 0; i< e.target.files.length;i++)
+      formData.append('file', e.target.files[i]);
+    const newFileNames = []
+    for (let i = 0; i < e.target.files.length; i++)
+      newFileNames[i] = e.target.files[i].name;
+
+    setFileName(newFileNames);
     setIsLoading(true)
     axios
       .post("http://localhost:8000/api/get-file-analysis", formData, {
@@ -106,7 +111,7 @@ function App() {
             <p className="font-bold">Upload Files for Analysis</p>
             <div className="mt-3 px-1">
               <div className="border-2 border-[#e1e1e1] p-1 rounded-md w-fit">
-                {fileName}
+                {fileName.map(i => (<p>{i}</p>))}
               </div>
             </div>
           </div>
@@ -180,7 +185,7 @@ function App() {
               onChange={handleChange}
             />
             <div className="flex justify-between">
-              <input type="file" onChange={uploadFile} disabled={isLoading} />
+              <input type="file" onChange={uploadFile} disabled={isLoading} multiple='multiple' />
               <button
                 className="bg-[#A038EF] text-white w-[80px] h-[30px] rounded-lg"
                 onClick={handleEnter}
